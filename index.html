@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кав'ярня «Ароматна» - PWA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="coffee.jpg" type="image/jpg">
+
+    <!-- Стандартне реєстрування SW -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('SW зареєстровано з scope:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Помилка реєстрації SW:', error);
+                    });
+            });
+        }
+    </script>
+</head>
+<body>
+<!-- Індикатор офлайн -->
+<div id="offline-indicator" class="offline-indicator hidden">
+    <div class="indicator-content">
+        <span class="indicator-icon">📡</span>
+        <span class="indicator-text">Офлайн режим</span>
+        <button onclick="dismissIndicator()" class="indicator-close">×</button>
+    </div>
+</div>
+
+<!-- Повідомлення про оновлення -->
+<div id="update-notification" class="update-notification hidden">
+    <div class="notification-content">
+        <h3>🔄 Доступне оновлення!</h3>
+        <p>Нова версія додатка готова до встановлення.</p>
+        <div class="notification-actions">
+            <button onclick="applyUpdate()" class="btn btn-primary">Оновити зараз</button>
+            <button onclick="dismissUpdate()" class="btn btn-secondary">Пізніше</button>
+        </div>
+    </div>
+</div>
+
+<!-- Сповіщення про синхронізацію -->
+<div id="sync-notification" class="sync-notification hidden">
+    <div class="notification-content">
+        <span class="sync-icon">🔄</span>
+        <span class="sync-text">Синхронізація...</span>
+    </div>
+</div>
+
+<header>
+    <div class="header-container">
+        <h1>☕ Кав'ярня «Ароматна»</h1>
+        <div class="header-controls">
+            <button id="cart-btn" onclick="showCart()" class="icon-btn" title="Кошик">
+                🛒 <span id="cart-count" class="badge">0</span>
+            </button>
+            <button onclick="checkForUpdates()" class="icon-btn" title="Перевірити оновлення">
+                🔄
+            </button>
+            <button id="theme-toggle" onclick="toggleTheme()" class="icon-btn" title="Змінити тему">
+                🌙
+            </button>
+        </div>
+    </div>
+    <nav class="main-nav">
+        <button onclick="showSection('menu')" class="nav-btn active">Меню</button>
+        <button onclick="showSection('orders')" class="nav-btn">Замовлення</button>
+        <button onclick="showSection('about')" class="nav-btn">Про нас</button>
+    </nav>
+</header>
+
+<main>
+    <!-- Секція меню -->
+    <section id="menu-section" class="content-section active">
+        <div class="section-header">
+            <h2>Наше меню</h2>
+            <div class="section-controls">
+                <button onclick="loadMenu(true)" class="btn btn-sm">
+                    <span class="btn-icon">🔄</span> Оновити
+                </button>
+                <select id="category-filter" onchange="filterMenu()" class="select">
+                    <option value="all">Всі категорії</option>
+                    <option value="Класична кава">Класична</option>
+                    <option value="Кава з молоком">З молоком</option>
+                    <option value="Солодка кава">Солодка</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="menu-container" class="menu-grid">
+            <!-- Меню завантажується через JS -->
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Завантаження меню...</p>
+            </div>
+        </div>
+
+        <div class="menu-info">
+            <p id="menu-status">Підключення до сервера...</p>
+            <p class="cache-hint">💡 Дані кешуються для офлайн-роботи</p>
+        </div>
+    </section>
+
+    <!-- Секція замовлень -->
+    <section id="orders-section" class="content-section">
+        <div class="section-header">
+            <h2>Мої замовлення</h2>
+            <button onclick="syncOrders()" class="btn btn-primary">
+                <span class="btn-icon">🔄</span> Синхронізувати
+            </button>
+        </div>
+
+        <div id="orders-container" class="orders-list">
+            <div class="empty-state">
+                <p>Немає замовлень</p>
+                <button onclick="showSection('menu')" class="btn btn-secondary">
+                    Перейти до меню
+                </button>
+            </div>
+        </div>
+
+        <div class="orders-info">
+            <h3>Офлайн замовлення</h3>
+            <p>Замовлення, зроблені офлайн, будуть відправлені автоматично при відновленні зв'язку.</p>
+            <div class="offline-queue">
+                <h4>В черзі: <span id="pending-orders">0</span></h4>
+                <div id="pending-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Секція про нас -->
+    <section id="about-section" class="content-section">
+        <div class="about-content">
+            <h2>Про кав'ярню «Ароматна»</h2>
+            <div class="about-card">
+                <img src="coffee.jpg" alt="Наша кава" class="about-image">
+                <div class="about-text">
+                    <h3>Наша місія</h3>
+                    <p>Ми робимо найсмачнішу каву в місті, використовуючи тільки найкращі сорти арабіки з етичних джерел.</p>
+
+                    <h3>PWA Технології</h3>
+                    <div class="features">
+                        <div class="feature">
+                            <span class="feature-icon">📱</span>
+                            <div>
+                                <strong>Офлайн доступ</strong>
+                                <p>Переглядайте меню без інтернету</p>
+                            </div>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">⚡</span>
+                            <div>
+                                <strong>Швидке завантаження</strong>
+                                <p>Завдяки кешуванню та Service Worker</p>
+                            </div>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🔔</span>
+                            <div>
+                                <strong>Push-сповіщення</strong>
+                                <p>Отримуйте інформацію про акції</p>
+                            </div>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🔄</span>
+                            <div>
+                                <strong>Фонова синхронізація</strong>
+                                <p>Замовлення відправляються автоматично</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Футер -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-info">
+            <p>Кав'ярня «Ароматна» © 2024</p>
+            <p class="version">Версія: <span id="app-version">v1.0</span></p>
+            <p class="connection-status">
+                Статус:
+                <span id="connection-status" class="online">Онлайн</span>
+            </p>
+        </div>
+        <div class="footer-controls">
+            <button onclick="updateSW()" class="btn btn-sm">
+                <span class="btn-icon">🔄</span> Оновити додаток
+            </button>
+            <button onclick="clearCache()" class="btn btn-sm btn-secondary">
+                <span class="btn-icon">🧹</span> Очистити кеш
+            </button>
+            <button onclick="toggleDebug()" class="btn btn-sm btn-secondary">
+                <span class="btn-icon">🐛</span> Debug
+            </button>
+        </div>
+    </div>
+</footer>
+
+<!-- Модальне вікно кошика -->
+<div id="cart-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🛒 Кошик</h3>
+            <button onclick="closeCart()" class="modal-close">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="cart-items"></div>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Разом:</span>
+                    <span id="cart-total">0 ₴</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeCart()" class="btn btn-secondary">Продовжити покупки</button>
+            <button onclick="checkout()" class="btn btn-primary">Оформити замовлення</button>
+        </div>
+    </div>
+</div>
+
+<!-- Debug панель -->
+<div id="debug-panel" class="debug-panel hidden">
+    <div class="debug-header">
+        <h4>Debug Panel</h4>
+        <button onclick="toggleDebug()" class="debug-close">×</button>
+    </div>
+    <div class="debug-content">
+        <div class="debug-section">
+            <h5>Service Worker</h5>
+            <p>Статус: <span id="sw-status">Не активний</span></p>
+            <p>Кеш: <span id="cache-status">Не завантажено</span></p>
+            <button onclick="forceUpdate()" class="btn btn-sm">Примусове оновлення</button>
+        </div>
+        <div class="debug-section">
+            <h5>Стан мережі</h5>
+            <p>Онлайн: <span id="debug-online">true</span></p>
+            <p>Підключення: <span id="connection-type">unknown</span></p>
+        </div>
+        <div class="debug-section">
+            <h5>Сховище</h5>
+            <p>Локальне: <span id="localstorage-size">0 KB</span></p>
+            <p>Кеш: <span id="cache-size">0 KB</span></p>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

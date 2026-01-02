@@ -1,0 +1,79 @@
+{
+  "name": "Кав'ярня «Ароматна»",
+  "short_name": "Ароматна",
+  "description": "PWA додаток кав'ярні з офлайн-функціоналом та швидким завантаженням",
+  "start_url": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait",
+  "scope": "/",
+  "theme_color": "#8b4513",
+  "background_color": "#f5e6d3",
+  "categories": ["food", "shopping", "lifestyle"],
+  "lang": "uk",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/coffee.jpg",
+      "sizes": "192x192",
+      "type": "image/jpg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/coffee.jpg",
+      "sizes": "512x512",
+      "type": "image/jpg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%238b4513%22,      <text x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2230%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22>☕</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Меню",
+      "short_name": "Меню",
+      "description": "Переглянути меню кав'ярні",
+      "url": "/#menu",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%238b4513%22/><text x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2230%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22>📋</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Замовити",
+      "short_name": "Замовити",
+      "description": "Зробити нове замовлення",
+      "url": "/#menu?order=true",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%238b4513%22/><text x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2230%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22>🛒</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 800%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23f5e6d3%22/><rect x=%2250%22 y=%2250%22 width=%221100%22 height=%22700%22 rx=%2220%22 fill=%22%23ffffff%22 stroke=%22%238b4513%22 stroke-width=%222%22/><text x=%22600%22 y=%22150%22 font-family=%22Arial%22 font-size=%2248%22 fill=%22%238b4513%22 text-anchor=%22middle%22>☕ Кав'ярня «Ароматна»</text><rect x=%22100%22 y=%22200%22 width=%22300%22 height=%22200%22 rx=%2210%22 fill=%22%238b4513%22/><rect x=%22450%22 y=%22200%22 width=%22300%22 height=%22200%22 rx=%2210%22 fill=%22%238b4513%22/><rect x=%22800%22 y=%22200%22 width=%22300%22 height=%22200%22 rx=%2210%22 fill=%22%238b4513%22/><rect x=%22100%22 y=%22450%22 width=%22300%22 height=%22200%22 rx=%2210%22 fill=%22%238b4513%22/><rect x=%22450%22 y=%22450%22 width=%22300%22 height=%22200%22 rx=%2210%22 fill=%22%238b4513%22/><rect x=%22800%22 y=%22450%22 width=%22300%22 height=%22200%22 rx=%2210%22 fill=%22%238b4513%22/><text x=%22600%22 y=%22750%22 font-family=%22Arial%22 font-size=%2232%22 fill=%22%238b4513%22 text-anchor=%22middle%22>PWA додаток з офлайн-функціоналом</text></svg>",
+      "sizes": "1200x800",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Головний екран"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+coffee",
+      "url": "/?coffee=%s"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "id": "/?source=pwa"
+}
